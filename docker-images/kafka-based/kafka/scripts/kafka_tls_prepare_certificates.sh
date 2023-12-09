@@ -42,7 +42,11 @@ for CERT_DIR in /opt/kafka/certificates/*; do
     if [[ ${BASH_REMATCH[1]} == "custom"  ]]; then
       echo "Creating keystore /tmp/kafka/$listener.keystore.p12"
       rm -f /tmp/kafka/"$listener".keystore.p12
-      create_keystore_without_ca_file /tmp/kafka/"$listener".keystore.p12 "$CERTS_STORE_PASSWORD" "${CERT_DIR}/tls.crt" "${CERT_DIR}/tls.key" custom-key
+      if [[ -f "${CERT_DIR}/ca.crt" ]]; then
+        create_keystore /tmp/kafka/"$listener".keystore.p12 "$CERTS_STORE_PASSWORD" "${CERT_DIR}/tls.crt" "${CERT_DIR}/tls.key" "${CERT_DIR}/ca.crt" custom-key
+      else
+        create_keystore_without_ca_file /tmp/kafka/"$listener".keystore.p12 "$CERTS_STORE_PASSWORD" "${CERT_DIR}/tls.crt" "${CERT_DIR}/tls.key" custom-key
+      fi
     elif [[ ${BASH_REMATCH[1]} == "oauth"  ]]; then
       OAUTH_STORE="/tmp/kafka/$listener.truststore.p12"
       rm -f "$OAUTH_STORE"
